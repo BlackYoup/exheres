@@ -20,6 +20,9 @@ DEPENDENCIES="
     build+run:
         dev-lang/ruby
         media-gfx/ImageMagick
+    run:
+        x11-apps/xdg-utils
+        x11-utils/xclip
 "
 
 src_install(){
