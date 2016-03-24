@@ -7,7 +7,7 @@ HOMEPAGE="https://gyazo.com/"
 LICENCES="GPL"
 
 PLATFORMS="~amd64 ~x86"
-DOWNLOADS="https://github.com/gyazo/Gyazo-for-Linux/archive/1.1.tar.gz"
+DOWNLOADS="https://github.com/gyazo/Gyazo-for-Linux/archive/${PV}.tar.gz"
 
 BUGS_TO="a.lefebvre@outlook.fr"
 
@@ -21,8 +21,11 @@ DEPENDENCIES="
         dev-lang/ruby
         media-gfx/ImageMagick
     run:
+        net-misc/curl
         x11-apps/xdg-utils
+        x11-apps/xdotool
         x11-apps/xprop
+        x11-apps/xwininfo
         x11-utils/xclip
 "
 
