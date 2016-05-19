@@ -1,24 +1,26 @@
 SUMMARY="The Easiest Way to Capture Your Screen"
 DESCRIPTION="
 Click to capture your screen and release to instantly upload the image. The link to the image page
-is copied to your clipboard automatically. You can share anything on screen right away."
+is copied to your clipboard automatically. You can share anything on screen right away.
+"
 
 HOMEPAGE="https://gyazo.com/"
 LICENCES="GPL"
-
-PLATFORMS="~amd64 ~x86"
-DOWNLOADS="https://github.com/gyazo/Gyazo-for-Linux/archive/${PV}.tar.gz"
-
 BUGS_TO="a.lefebvre@outlook.fr"
 
-WORK="${WORKBASE}"
-GYAZOARCHIVE="Gyazo-for-Linux-${PV}"
-
+PLATFORMS="~amd64 ~x86"
 SLOT="0"
+
+GITHUB_PROJECT="Gyazo-for-Linux"
+
+require github [ user=gyazo project=${GITHUB_PROJECT} ]
+
+WORK="${WORKBASE}"
+GYAZOARCHIVE="${GITHUB_PROJECT}-${PV}"
 
 DEPENDENCIES="
     build+run:
-        dev-lang/ruby
+        dev-lang/ruby:=
         media-gfx/ImageMagick
     run:
         net-misc/curl
@@ -31,5 +33,5 @@ DEPENDENCIES="
 
 src_install(){
     edo mkdir -p "${IMAGE}"/usr/$(exhost --target)/bin
-    edo cp "${WORK}"/"${GYAZOARCHIVE}"/src/gyazo.rb "${IMAGE}"/usr/$(exhost --target)/bin/gyazo
+    edo cp "${WORK}/${GYAZOARCHIVE}/src/gyazo.rb" "${IMAGE}/usr/$(exhost --target)/bin/gyazo"
 }
