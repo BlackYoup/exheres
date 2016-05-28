@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 
 require github [ user=snare tag=v${PV} ]
-require setup-py [ import=setuptools blacklist=3 has_bin=true ]
+require setup-py [ import=setuptools blacklist=2 has_bin=true ]
 
 SUMMARY="A hacky debugger UI for hackers"
 
