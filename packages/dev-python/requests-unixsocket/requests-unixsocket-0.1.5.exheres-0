@@ -15,5 +15,7 @@ RESTRICT="test"
 
 DEPENDENCIES="
     build+run:
+        dev-python/urllib3[>=1.8][python_abis:*(-)?]
         dev-python/pbr[python_abis:*(-)?]
+        dev-python/requests[>=1.1][python_abis:*(-)?]
 "
