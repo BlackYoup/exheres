@@ -1,0 +1,27 @@
+# Copyright 2016 Arnaud Lefebvre <a.lefebvre@outlook.fr>
+# Distributed under the terms of the GNU General Public License v2
+
+require github [ user=snare tag=v${PV} ]
+require setup-py [ import=setuptools blacklist=3 ]
+
+SUMMARY="A hacky debugger UI for hackers"
+
+LICENCES="MIT"
+SLOT="0"
+PLATFORMS="~amd64 ~x86"
+MYOPTIONS=""
+
+# TODO: enable tests
+RESTRICT="test"
+
+DEPENDENCIES="
+    build+run:
+        dev-python/blessed[python_abis:*(-)?]
+        dev-python/Flask[python_abis:*(-)?]
+        dev-python/Flask-RESTful[python_abis:*(-)?]
+        dev-python/Pygments[python_abis:*(-)?]
+        dev-python/requests[python_abis:*(-)?]
+        dev-python/requests-unixsocket[python_abis:*(-)?]
+        dev-python/scruffington[>=0.3.2][python_abis:*(-)?]
+        dev-python/six[python_abis:*(-)?]
+"
