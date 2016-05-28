@@ -1,0 +1,19 @@
+# Copyright 2016 Arnaud Lefebvre <a.lefebvre@outlook.fr>
+# Distributed under the terms of the GNU General Public License v2
+
+require pypi setup-py [ import=setuptools ]
+
+SUMMARY="Use requests to talk HTTP via a UNIX domain socket"
+
+LICENCES="Apache-2.0"
+SLOT="0"
+PLATFORMS="~amd64 ~x86"
+MYOPTIONS=""
+
+# TODO: enable tests
+RESTRICT="test"
+
+DEPENDENCIES="
+    build+run:
+        dev-python/pbr[python_abis:*(-)?]
+"
