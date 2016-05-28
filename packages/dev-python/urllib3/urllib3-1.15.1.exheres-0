@@ -1,0 +1,21 @@
+# Copyright 2016 Arnaud Lefebvre <a.lefebvre@outlook.fr>
+# Distributed under the terms of the GNU General Public License v2
+
+require pypi setup-py [ import=setuptools test=nose ]
+
+SUMMARY="Python HTTP library with thread-safe connection pooling,
+file post support, sanity friendly, and more"
+
+LICENCES="MIT"
+SLOT="0"
+PLATFORMS="~amd64 ~x86"
+MYOPTIONS=""
+
+# TODO: enable tests
+RESTRICT="test"
+
+DEPENDENCIES="
+    test:
+        dev-python/mock
+        dev-python/tornado
+"
