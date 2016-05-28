@@ -1,0 +1,28 @@
+# Copyright 2016 Arnaud Lefebvre <a.lefebvre@outlook.fr>
+# Distributed under the terms of the GNU General Public License v2
+
+require github [ user=snare project=scruffy tag=v${PV} ]
+require setup-py [ import=setuptools blacklist=3 ]
+
+SUMMARY="Scruffy is a framework for taking care of a bunch of boilerplate in Python apps"
+
+LICENCES="MIT"
+SLOT="0"
+PLATFORMS="~amd64 ~x86"
+MYOPTIONS=""
+
+# TODO
+RESTRICT="test"
+
+DEPENDENCIES="
+    build+run:
+        dev-python/PyYAML[=3.11][python_abis:*(-)?]
+        dev-python/six[=1.10.0][python_abis:*(-)?]
+"
+
+setup-py_src_prepare(){
+    local current_abis=${MULTIBUILD_PYTHON_ABIS_CURRENT_TARGET}
+    local python_abis_dir="${WORK}/PYTHON_ABIS/${current_abis}"
+    ln -s "${python_abis_dir}/scruffy-${PV}" "${python_abis_dir}/${PNV}"
+    default
+}
