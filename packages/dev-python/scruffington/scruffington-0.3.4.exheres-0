@@ -22,9 +22,8 @@ DEPENDENCIES="
 
 setup-py_src_prepare(){
     local python_abis_dir="${WORK}/PYTHON_ABIS/"
-    local abis=$(find ${python_abis_dir} -maxdepth 1 -mindepth 1 -type d -printf '%f\n')
 
-    for abi in ${abis}; do
+    for abi in ${PYTHON_ABIS}; do
         ln -s ${python_abis_dir}/${abi}/scruffy-${PV} ${python_abis_dir}/${abi}/${PNV}
     done
 
