@@ -1,0 +1,22 @@
+# Copyright 2016 Arnaud Lefebvre <a.lefebvre@outlook.fr>
+# Distributed under the terms of the GNU General Public License v2
+
+require pypi setup-py [ import=setuptools test=nose ]
+
+SUMMARY="Fedora Messaging"
+
+LICENCES="LGPL-2.1"
+SLOT="0"
+
+PLATFORMS="~amd64 ~x86"
+MYOPTIONS=""
+
+# TODO: tests
+RESTRICT="test"
+
+# TODO: Sphinx only for [doc] ?
+DEPENDENCIES="
+    build+run:
+        dev-python/python-dateutil[python_abis:*(-)?]
+        dev-python/simplejson[python_abis:*(-)?]
+"
