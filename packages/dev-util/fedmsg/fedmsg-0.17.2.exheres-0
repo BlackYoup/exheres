@@ -1,0 +1,27 @@
+# Copyright 2016 Arnaud Lefebvre <a.lefebvre@outlook.fr>
+# Distributed under the terms of the GNU General Public License v2
+
+require pypi setup-py [ import=setuptools test=nose ]
+
+SUMMARY="Fedora Messaging"
+
+LICENCES="LGPL-2.1"
+SLOT="0"
+
+PLATFORMS="~amd64 ~x86"
+MYOPTIONS=""
+
+# TODO: make tests pass
+RESTRICT="test"
+
+DEPENDENCIES="
+    build+run:
+        dev-python/arrow[python_abis:*(-)?]
+        dev-python/cryptography[python_abis:*(-)?]
+        dev-python/kitchen[python_abis:*(-)?]
+        dev-python/pyzmq[python_abis:*(-)?]
+        dev-python/requests[python_abis:*(-)?]
+        dev-python/six[python_abis:*(-)?]
+"
+
+#TODO: install fedmgs.d to /etc
