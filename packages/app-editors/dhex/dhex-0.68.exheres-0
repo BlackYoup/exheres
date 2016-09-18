@@ -1,0 +1,39 @@
+# Copyright 2016 Arnaud Lefebvre <a.lefebvre@outlook.fr>
+# Distributed under the terms of the GNU General Public License v2
+
+SUMMARY="ncurses based hex editor"
+DESCRIPTION="
+DHEX is a more than just another hex editor: It includes a diff mode, which can be used to easily
+and conveniently compare two binary files. Since it is based on ncurses and is themeable, it can
+run on any number of systems and scenarios. With its utilization of search logs, it is possible
+to track changes in different iterations of files easily.
+"
+
+DOWNLOADS="http://www.dettus.net/${PN}/${PN}_${PV}.tar.gz"
+
+LICENCES="GPL"
+SLOT="0"
+PLATFORMS="~amd64"
+
+MYOPTIONS=""
+
+DEPENDENCIES="
+    build+run:
+        sys-libs/ncurses
+"
+
+WORK=${WORKBASE}/${PN}_${PV}
+
+src_prepare(){
+    sed -i "s/gcc/$(exhost --target)-gcc/g" ${WORK}/Makefile
+
+    default
+}
+
+src_install(){
+    dobin ${WORK}/dhex
+    doman dhex.1
+	  doman dhexrc.5
+	  doman dhex_markers.5
+    doman dhex_searchlog.5
+}
