@@ -31,9 +31,8 @@ src_prepare(){
 }
 
 src_install(){
-    dobin ${WORK}/dhex
-    doman dhex.1
-    doman dhexrc.5
-    doman dhex_markers.5
-    doman dhex_searchlog.5
+    dobin dhex
+    for m in dhex.1 dhexrc.5 dhex_markers.5 dhex_searchlog.5; do
+        doman ${m}
+    done
 }
