@@ -33,7 +33,7 @@ src_prepare(){
 src_install(){
     dobin ${WORK}/dhex
     doman dhex.1
-	  doman dhexrc.5
-	  doman dhex_markers.5
+    doman dhexrc.5
+    doman dhex_markers.5
     doman dhex_searchlog.5
 }
