@@ -1,0 +1,15 @@
+# Copyright 2016 Arnaud Lefebvre <a.lefebvre@outlook.fr>
+# Distributed under the terms of the GNU General Public License v2
+
+require gem
+
+SUMMARY="A Ruby client for Neovim"
+
+LICENCES="MIT"
+SLOT="0"
+PLATFORMS="~amd64"
+
+DEPENDENCIES="
+    run+build:
+        dev-ruby/msgpack[~1.0.0]
+"
