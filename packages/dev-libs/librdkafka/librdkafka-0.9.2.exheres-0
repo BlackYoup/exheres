@@ -1,7 +1,7 @@
 # Copyright 2016 Arnaud Lefebvre <a.lefebvre@outlook.fr>
 # Distributed under the terms of the GNU General Public License v2
 
-require github [ user=edenhill ]
+require github [ user=edenhill tag=v${PV} ]
 
 SUMMARY="The Apache Kafka C/C++ library"
 
@@ -29,7 +29,6 @@ src_configure(){
 }
 
 src_compile(){
-    elog "YAY KOMPIL"
     default
 
     if optionq doc; then
