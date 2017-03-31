@@ -1,0 +1,20 @@
+# Copyright 2017 Arnaud Lefebvre <a.lefebvre@outlook.fr>
+# Distributed under the terms of the GNU General Public License v2
+
+require gem
+
+SUMMARY="CLI client for vimgolf.com"
+
+SLOT="0"
+PLATFORMS="~amd64"
+BUGS_TO="a.lefebvre@outlook.fr"
+LICENCES="MIT"
+
+MY_OPTIONS=""
+
+DEPENDENCIES="
+    build+run:
+        dev-ruby/json_pure
+        dev-ruby/highline
+        dev-ruby/thor
+"
