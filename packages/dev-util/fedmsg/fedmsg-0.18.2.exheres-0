@@ -24,4 +24,12 @@ DEPENDENCIES="
         dev-python/six[python_abis:*(-)?]
 "
 
-#TODO: install fedmgs.d to /etc
+src_install(){
+    setup-py_src_install
+
+    # we need to install the fedmsg.d dir in /etc
+    # first, find one among the python_abis and install it
+    local fedmsgdir=$(find "${WORK}"/PYTHON_ABIS -maxdepth 3 -type d -name "fedmsg.d" | head -n1)
+    insinto /etc/
+    doins -r "${fedmsgdir}"
+}
