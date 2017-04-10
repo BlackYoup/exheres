@@ -1,0 +1,52 @@
+# Copyright 2017 Arnaud Lefebvre <a.lefebvre@outlook.fr>
+# Distributed under the terms of the GNU General Public License v2
+
+GITHUB_USER="Masterminds"
+
+require github [ user=${GITHUB_USER} tag=v${PV} ]
+
+SUMMARY="Package Management for Golang"
+
+LICENCES="MIT"
+SLOT="0"
+PLATFORMS="~amd64"
+
+MYOPTIONS=""
+DEPENDENCIES="
+    build:
+        dev-lang/go[>=1.7]
+"
+
+# strip usually doesn't work great for golang binaries
+# tests don't pass with sydbox
+RESTRICT="strip test"
+
+# we need to simulate the full GOPATH architecture otherwise
+# compilation / tests will fail because of recursive symlinks
+REPO="${WORKBASE}"/src/github.com/${GITHUB_USER}/${PN}
+GOPATH="${WORKBASE}"
+
+src_prepare(){
+    # avoid git error message while trying to retrieve version from git tags
+    # we give the version below, see: https://github.com/Masterminds/glide/pull/800
+    edo sed 's/VERSION :=/VERSION ?=/g' -i Makefile
+
+    edo mkdir -p "${REPO}"
+    edo mv "${WORK}"/* "${REPO}"
+
+    WORK="${REPO}"
+}
+
+src_compile(){
+    emake build VERSION=${PV}
+}
+
+src_test(){
+    emake test
+}
+
+src_install(){
+    # install target requires build and it builds twice
+    dobin ./glide
+    dodoc ./{README.md,CHANGELOG.md}
+}
