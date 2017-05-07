@@ -30,12 +30,8 @@ DEPENDENCIES="
         providers:openssl? ( dev-libs/openssl )
 "
 
-DEFAULT_SRC_PREPARE_PATCHES=(
-    "${FILES}"/${PNV}-use-defined-build-tools.patch
-)
-
 src_compile(){
-    emake verbose=true
+    emake verbose=true && emake docs
 }
 
 src_install(){
@@ -50,6 +46,6 @@ src_install(){
     edo mkdir -p "${dest}"/lib/${PN}/bin
     edo mv "${dest}"/bin/ponyc "${dest}"/lib/${PN}/bin/ponyc
     edo mv "${dest}"/packages/ "${dest}"/lib/${PN}
-
     dosym /usr/$(exhost --target)/lib/${PN}/bin/ponyc /usr/$(exhost --target)/bin/ponyc
+    dodoc -r stdlib-docs
 }
