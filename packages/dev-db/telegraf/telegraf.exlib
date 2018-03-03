@@ -6,7 +6,9 @@ require systemd-service [ systemd_files=[ "${WORK}/scripts/telegraf.service" ] ]
 export_exlib_phases src_prepare src_compile src_install
 
 LICENCES="MIT"
-MYOPTIONS=""
+MYOPTIONS="
+    warp10 [[ description = [ Add support for Warp10 GTS database ] ]]
+"
 
 # It needs a working docker to run tests
 RESTRICT="strip test"
@@ -21,6 +23,7 @@ DEPENDENCIES="
 GO_WORK_DIR=${WORKBASE}/src/github.com/influxdata/${PN}
 
 telegraf_src_prepare(){
+    optionq warp10 && expatch "${FILES}/warp10-output.patch"
     export GOPATH=${WORKBASE}
     local work=${WORKBASE}/src/github.com/influxdata
 
