@@ -1,0 +1,51 @@
+# Copyright 2018 Arnaud Lefebvre <a.lefebvre@outlook.fr>
+# Distributed under the terms of the GNU General Public License v2
+
+require systemd-service [ systemd_files=[ "${WORK}/scripts/telegraf.service" ] ] github [ user=influxdata tag="${PV}" ]
+
+export_exlib_phases src_prepare src_compile src_install
+
+LICENCES="MIT"
+MYOPTIONS=""
+
+# It needs a working docker to run tests
+RESTRICT="strip test"
+
+DEPENDENCIES="
+    build+run:
+        dev-lang/go
+    run:
+        user/telegraf
+"
+
+GO_WORK_DIR=${WORKBASE}/src/github.com/influxdata/${PN}
+
+telegraf_src_prepare(){
+    export GOPATH=${WORKBASE}
+    local work=${WORKBASE}/src/github.com/influxdata
+
+    mkdir -p ${work}
+    ln -s ${WORK} ${work}/${PN}
+    cd ${GO_WORK_DIR}
+
+    # So it can install its dependencies
+    esandbox disable_net
+    emake deps
+    esandbox enable_net
+}
+
+telegraf_src_compile(){
+    cd ${GO_WORK_DIR}
+    emake telegraf
+}
+
+telegraf_src_install(){
+    newbin ${WORK}/${PN} ${PN}
+    install_systemd_files
+    insopts -m 0600 -o telegraf -g telegraf
+    diropts -m 0700 -o telegraf -g telegraf
+    insinto /etc/telegraf
+    doins etc/telegraf.conf
+    keepdir /etc/telegraf/telegraf.d
+}
+
