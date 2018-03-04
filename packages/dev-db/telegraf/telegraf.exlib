@@ -23,7 +23,7 @@ DEPENDENCIES="
 GO_WORK_DIR=${WORKBASE}/src/github.com/influxdata/${PN}
 
 telegraf_src_prepare(){
-    optionq warp10 && expatch "${FILES}/warp10-output.patch"
+    optionq warp10 && expatch "${FILES}/warp10-output-${PV}.patch"
     export GOPATH=${WORKBASE}
     local work=${WORKBASE}/src/github.com/influxdata
 

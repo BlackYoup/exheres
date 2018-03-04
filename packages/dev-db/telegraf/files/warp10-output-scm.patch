@@ -1,0 +1,390 @@
+Upstream: Not yet - https://github.com/influxdata/telegraf/pull/1923
+Reason: it will probably never be merged
+From 16d8ea3d1c7d1011848a6f69df3603e631d5afac Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Aur=C3=A9lien=20H=C3=A9bert?= <aurrelhebert@gmail.com>
+Date: Fri, 21 Oct 2016 10:36:19 +0200
+Subject: [PATCH] Add plugin Warp10
+
+---
+ Makefile                              |  53 ++++++++++
+ README.md                             |  46 +++++++++
+ plugins/outputs/all/all.go            |   1 +
+ plugins/outputs/warp10/README.md      |  23 +++++
+ plugins/outputs/warp10/warp10.go      | 179 ++++++++++++++++++++++++++++++++++
+ plugins/outputs/warp10/warp10_test.go |  22 +++++
+ 6 files changed, 324 insertions(+)
+ create mode 100644 plugins/outputs/warp10/README.md
+ create mode 100644 plugins/outputs/warp10/warp10.go
+ create mode 100644 plugins/outputs/warp10/warp10_test.go
+
+diff --git a/Makefile b/Makefile
+index 3250e69ede..9e50c9716f 100644
+--- a/Makefile
++++ b/Makefile
+@@ -45,6 +45,59 @@ install: telegraf
+ 	cp $(TELEGRAF) $(DESTDIR)$(PREFIX)/bin/
+ 
+ test:
++# Use the windows godeps file to prepare dependencies
++prepare-windows:
++	go get github.com/sparrc/gdm
++	gdm restore
++	gdm restore -f Godeps_windows
++
++# Run all docker containers necessary for unit tests
++docker-run:
++	docker run --name aerospike -p "3000:3000" -d aerospike/aerospike-server:3.9.0
++	docker run --name kafka \
++		-e ADVERTISED_HOST=localhost \
++		-e ADVERTISED_PORT=9092 \
++		-p "2181:2181" -p "9092:9092" \
++		-d spotify/kafka
++	docker run --name mysql -p "3306:3306" -e MYSQL_ALLOW_EMPTY_PASSWORD=yes -d mysql
++	docker run --name memcached -p "11211:11211" -d memcached
++	docker run --name postgres -p "5432:5432" -d postgres
++	docker run --name rabbitmq -p "15672:15672" -p "5672:5672" -d rabbitmq:3-management
++	docker run --name redis -p "6379:6379" -d redis
++	docker run --name nsq -p "4150:4150" -d nsqio/nsq /nsqd
++	docker run --name mqtt -p "1883:1883" -d ncarlier/mqtt
++	docker run --name riemann -p "5555:5555" -d blalor/riemann
++	docker run --name nats -p "4222:4222" -d nats
++	docker run --name warp10 -p "8090:8080" -p "8091:8081" -d -i warp10io/warp10:1.0.16-ci
++
++# Run docker containers necessary for CircleCI unit tests
++docker-run-circle:
++	docker run --name aerospike -p "3000:3000" -d aerospike/aerospike-server:3.9.0
++	docker run --name kafka \
++		-e ADVERTISED_HOST=localhost \
++		-e ADVERTISED_PORT=9092 \
++		-p "2181:2181" -p "9092:9092" \
++		-d spotify/kafka
++	docker run --name nsq -p "4150:4150" -d nsqio/nsq /nsqd
++	docker run --name mqtt -p "1883:1883" -d ncarlier/mqtt
++	docker run --name riemann -p "5555:5555" -d blalor/riemann
++	docker run --name nats -p "4222:4222" -d nats
++	docker run --name warp10 -p "8090:8080" -p "8091:8081" -d -i waxzce/warp10forci:latest
++
++# Kill all docker containers, ignore errors
++docker-kill:
++	-docker kill nsq aerospike redis rabbitmq postgres memcached mysql kafka mqtt riemann nats
++	-docker rm nsq aerospike redis rabbitmq postgres memcached mysql kafka mqtt riemann nats
++
++# Run full unit tests using docker containers (includes setup and teardown)
++test: vet docker-kill docker-run
++	# Sleeping for kafka leadership election, TSDB setup, etc.
++	sleep 60
++	# SUCCESS, running tests
++	go test -race ./...
++
++# Run "short" unit tests
++test-short: vet
+ 	go test -short ./...
+ 
+ fmt:
+diff --git a/README.md b/README.md
+index 0ae1a93160..1e38d18c6c 100644
+--- a/README.md
++++ b/README.md
+@@ -299,3 +299,49 @@ formats may be used with input plugins supporting the `data_format` option:
+ * [tcp](./plugins/outputs/socket_writer)
+ * [udp](./plugins/outputs/socket_writer)
+ * [wavefront](./plugins/outputs/wavefront)
++* [http_listener](https://github.com/influxdata/telegraf/tree/master/plugins/inputs/http_listener)
++* [kafka_consumer](https://github.com/influxdata/telegraf/tree/master/plugins/inputs/kafka_consumer)
++* [mqtt_consumer](https://github.com/influxdata/telegraf/tree/master/plugins/inputs/mqtt_consumer)
++* [nats_consumer](https://github.com/influxdata/telegraf/tree/master/plugins/inputs/nats_consumer)
++* [nsq_consumer](https://github.com/influxdata/telegraf/tree/master/plugins/inputs/nsq_consumer)
++* [logparser](https://github.com/influxdata/telegraf/tree/master/plugins/inputs/logparser)
++* [statsd](https://github.com/influxdata/telegraf/tree/master/plugins/inputs/statsd)
++* [tail](https://github.com/influxdata/telegraf/tree/master/plugins/inputs/tail)
++* [tcp_listener](https://github.com/influxdata/telegraf/tree/master/plugins/inputs/tcp_listener)
++* [udp_listener](https://github.com/influxdata/telegraf/tree/master/plugins/inputs/udp_listener)
++* [webhooks](https://github.com/influxdata/telegraf/tree/master/plugins/inputs/webhooks)
++  * [filestack](https://github.com/influxdata/telegraf/tree/master/plugins/inputs/webhooks/filestack)
++  * [github](https://github.com/influxdata/telegraf/tree/master/plugins/inputs/webhooks/github)
++  * [mandrill](https://github.com/influxdata/telegraf/tree/master/plugins/inputs/webhooks/mandrill)
++  * [rollbar](https://github.com/influxdata/telegraf/tree/master/plugins/inputs/webhooks/rollbar)
++
++We'll be adding support for many more over the coming months. Read on if you
++want to add support for another service or third-party API.
++
++## Supported Output Plugins
++
++* [influxdb](https://github.com/influxdata/telegraf/tree/master/plugins/outputs/influxdb)
++* [amon](https://github.com/influxdata/telegraf/tree/master/plugins/outputs/amon)
++* [amqp](https://github.com/influxdata/telegraf/tree/master/plugins/outputs/amqp)
++* [aws kinesis](https://github.com/influxdata/telegraf/tree/master/plugins/outputs/kinesis)
++* [aws cloudwatch](https://github.com/influxdata/telegraf/tree/master/plugins/outputs/cloudwatch)
++* [datadog](https://github.com/influxdata/telegraf/tree/master/plugins/outputs/datadog)
++* [file](https://github.com/influxdata/telegraf/tree/master/plugins/outputs/file)
++* [graphite](https://github.com/influxdata/telegraf/tree/master/plugins/outputs/graphite)
++* [graylog](https://github.com/influxdata/telegraf/tree/master/plugins/outputs/graylog)
++* [instrumental](https://github.com/influxdata/telegraf/tree/master/plugins/outputs/instrumental)
++* [kafka](https://github.com/influxdata/telegraf/tree/master/plugins/outputs/kafka)
++* [librato](https://github.com/influxdata/telegraf/tree/master/plugins/outputs/librato)
++* [mqtt](https://github.com/influxdata/telegraf/tree/master/plugins/outputs/mqtt)
++* [nats](https://github.com/influxdata/telegraf/tree/master/plugins/outputs/nats)
++* [nsq](https://github.com/influxdata/telegraf/tree/master/plugins/outputs/nsq)
++* [opentsdb](https://github.com/influxdata/telegraf/tree/master/plugins/outputs/opentsdb)
++* [prometheus](https://github.com/influxdata/telegraf/tree/master/plugins/outputs/prometheus_client)
++* [riemann](https://github.com/influxdata/telegraf/tree/master/plugins/outputs/riemann)
++* [warp10](https://github.com/influxdata/telegraf/tree/master/plugins/outputs/warp10)
++
++## Contributing
++
++Please see the
++[contributing guide](CONTRIBUTING.md)
++for details on contributing a plugin to Telegraf.
+diff --git a/plugins/outputs/all/all.go b/plugins/outputs/all/all.go
+index 5e74eb7965..cacda3cbf5 100644
+--- a/plugins/outputs/all/all.go
++++ b/plugins/outputs/all/all.go
+@@ -25,4 +25,5 @@ import (
+ 	_ "github.com/influxdata/telegraf/plugins/outputs/riemann_legacy"
+ 	_ "github.com/influxdata/telegraf/plugins/outputs/socket_writer"
+ 	_ "github.com/influxdata/telegraf/plugins/outputs/wavefront"
++	_ "github.com/influxdata/telegraf/plugins/outputs/warp10"
+ )
+diff --git a/plugins/outputs/warp10/README.md b/plugins/outputs/warp10/README.md
+new file mode 100644
+index 0000000000..b42a91e10b
+--- /dev/null
++++ b/plugins/outputs/warp10/README.md
+@@ -0,0 +1,23 @@
++# README #
++
++Telegraph plugin to push metrics on Warp10
++
++### Telegraph output for Warp10 ###
++
++Execute a post http on Warp10 at every flush time configured in telegraph in order to push the metrics collected
++
++### Config ###
++
++Add following instruction in the config file (Output part)
++
++```
++[[outputs.warp10]]
++warpUrl = "http://localhost:4242"
++token = "token"
++prefix = "telegraf."
++debug = false
++```
++
++### Contact ###
++
++* contact@cityzendata.com
+diff --git a/plugins/outputs/warp10/warp10.go b/plugins/outputs/warp10/warp10.go
+new file mode 100644
+index 0000000000..d257af6109
+--- /dev/null
++++ b/plugins/outputs/warp10/warp10.go
+@@ -0,0 +1,179 @@
++package warp10
++
++import (
++	"bytes"
++	"fmt"
++	"io"
++	"io/ioutil"
++	"log"
++	"net/http"
++	"os"
++	"sort"
++	"strconv"
++	"strings"
++	"time"
++
++	"github.com/influxdata/telegraf"
++	"github.com/influxdata/telegraf/plugins/outputs"
++)
++
++type Warp10 struct {
++	Prefix string
++
++	WarpUrl string
++
++	Token string
++
++	Debug bool
++}
++
++var sampleConfig = `
++  # prefix for metrics class Name
++  prefix = "Prefix"
++  ## POST HTTP(or HTTPS) ##
++  # Url name of the Warp 10 server
++  warp_url = "WarpUrl"
++  # Token to access your app on warp 10
++  token = "Token"
++  # Debug true - Prints Warp communication
++  debug = false
++`
++
++type MetricLine struct {
++	Metric    string
++	Timestamp int64
++	Value     string
++	Tags      string
++}
++
++func (o *Warp10) Connect() error {
++	return nil
++}
++
++func (o *Warp10) Write(metrics []telegraf.Metric) error {
++
++	var out io.Writer = ioutil.Discard
++	if o.Debug {
++		out = os.Stdout
++	}
++
++	if len(metrics) == 0 {
++		return nil
++	}
++	var now = time.Now()
++	collectString := make([]string, 0)
++	index := 0
++	for _, mm := range metrics {
++
++		for k, v := range mm.Fields() {
++
++			metric := &MetricLine{
++				Metric:    fmt.Sprintf("%s%s", o.Prefix, mm.Name()+"."+k),
++				Timestamp: now.Unix() * 1000000,
++			}
++
++			metricValue, err := buildValue(v)
++			if err != nil {
++				log.Printf("Warp: %s\n", err.Error())
++				continue
++			}
++			metric.Value = metricValue
++
++			tagsSlice := buildTags(mm.Tags())
++			metric.Tags = strings.Join(tagsSlice, ",")
++
++			messageLine := fmt.Sprintf("%d// %s{%s} %s\n", metric.Timestamp, metric.Metric, metric.Tags, metric.Value)
++
++			collectString = append(collectString, messageLine)
++			index += 1
++		}
++	}
++	payload := fmt.Sprint(strings.Join(collectString, "\n"))
++	//defer connection.Close()
++	req, err := http.NewRequest("POST", o.WarpUrl, bytes.NewBufferString(payload))
++	req.Header.Set("X-Warp10-Token", o.Token)
++	req.Header.Set("Content-Type", "text/plain")
++
++	client := &http.Client{}
++	resp, err := client.Do(req)
++	if err != nil {
++		panic(err)
++	}
++	defer resp.Body.Close()
++
++	fmt.Fprintf(out, "response Status: %#v", resp.Status)
++	fmt.Fprintf(out, "response Headers: %#v", resp.Header)
++	body, _ := ioutil.ReadAll(resp.Body)
++	fmt.Fprintf(out, "response Body: %#v", string(body))
++
++	return nil
++}
++
++func buildTags(ptTags map[string]string) []string {
++	sizeTags := len(ptTags)
++	sizeTags += 1
++	tags := make([]string, sizeTags)
++	index := 0
++	for k, v := range ptTags {
++		tags[index] = fmt.Sprintf("%s=%s", k, v)
++		index += 1
++	}
++	tags[index] = fmt.Sprintf("source=telegraf")
++	sort.Strings(tags)
++	return tags
++}
++
++func buildValue(v interface{}) (string, error) {
++	var retv string
++	switch p := v.(type) {
++	case int64:
++		retv = IntToString(int64(p))
++	case string:
++		retv = fmt.Sprintf("'%s'", p)
++	case bool:
++		retv = BoolToString(bool(p))
++	case uint64:
++		retv = UIntToString(uint64(p))
++	case float64:
++		retv = FloatToString(float64(p))
++	default:
++		retv = fmt.Sprintf("'%s'", p)
++		//    return retv, fmt.Errorf("unexpected type %T with value %v for Warp", v, v)
++	}
++	return retv, nil
++}
++
++func IntToString(input_num int64) string {
++	return strconv.FormatInt(input_num, 10)
++}
++
++func BoolToString(input_bool bool) string {
++	return strconv.FormatBool(input_bool)
++}
++
++func UIntToString(input_num uint64) string {
++	return strconv.FormatUint(input_num, 10)
++}
++
++func FloatToString(input_num float64) string {
++	return strconv.FormatFloat(input_num, 'f', 6, 64)
++}
++
++func (o *Warp10) SampleConfig() string {
++	return sampleConfig
++}
++
++func (o *Warp10) Description() string {
++	return "Configuration for Warp server to send metrics to"
++}
++
++func (o *Warp10) Close() error {
++	// Basically nothing to do for Warp10 here
++	return nil
++}
++
++func init() {
++	outputs.Add("warp10", func() telegraf.Output {
++		return &Warp10{}
++	})
++}
+diff --git a/plugins/outputs/warp10/warp10_test.go b/plugins/outputs/warp10/warp10_test.go
+new file mode 100644
+index 0000000000..8898977577
+--- /dev/null
++++ b/plugins/outputs/warp10/warp10_test.go
+@@ -0,0 +1,22 @@
++package warp10
++
++import (
++	"testing"
++
++	"github.com/influxdata/telegraf/testutil"
++	"github.com/stretchr/testify/require"
++)
++
++func TestWriteWarp10(t *testing.T) {
++	w := Warp10{
++		Prefix:  "unit.test",
++		WarpUrl: "http://localhost:8090",
++		Token:   "WRITE",
++		Debug:   false,
++	}
++
++	//err := i.Connect()
++	//require.NoError(t, err)
++	err := w.Write(testutil.MockMetrics())
++	require.NoError(t, err)
++}
+
