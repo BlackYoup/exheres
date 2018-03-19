@@ -1,0 +1,41 @@
+# Copyright 2018 Arnaud Lefebvre <a.lefebvre@outlook.fr>
+# Distributed under the terms of the GNU General Public License v2
+
+export_exlib_phases src_compile src_install
+
+require github [ user=ponylang ]
+
+SUMMARY="The ponylang compiler"
+
+DESCRIPTION="
+Pony is an open-source, actor-model, capabilities-secure, high
+performance programming language
+"
+HOMEPAGE="https://www.ponylang.org"
+
+LICENCES="BSD-2"
+
+MYOPTIONS="
+    providers: ( libressl openssl ) [[ number-selected = exactly-one ]]
+"
+
+# there is one HTTP test that needs to bind to a port, apparently
+RESTRICT="test"
+
+DEPENDENCIES="
+    build+run:
+        dev-lang/clang[<4]
+        dev-lang/llvm[<4]
+        dev-libs/pcre2
+        sys-libs/ncurses
+        providers:libressl? ( dev-libs/libressl:= )
+        providers:openssl? ( dev-libs/openssl )
+"
+
+ponyc_src_compile(){
+    emake && emake docs
+}
+
+ponyc_src_install(){
+    emake prefix="${IMAGE}/usr/$(exhost --target)" -j1 install
+}
