@@ -33,7 +33,7 @@ DEPENDENCIES="
 "
 
 ponyc_src_compile(){
-    emake && emake docs
+    emake default_pic=true && emake docs
 }
 
 ponyc_src_install(){
