@@ -1,0 +1,19 @@
+# Copyright 2018 Arnaud Lefebvre <a.lefebvre@outlook.fr>
+# Distributed under the terms of the GNU General Public License v2
+
+require github [ user="pali" ]
+
+SUMMARY="
+Open Source implementation of Audio Processing Technology codec (aptX)
+"
+
+SLOT="0"
+PLATFORMS="~amd64"
+
+DEPENDENCIES=""
+
+MYOPTIONS=""
+
+src_install() {
+  emake PREFIX="${IMAGE}"/usr/$(exhost --target) install
+}
