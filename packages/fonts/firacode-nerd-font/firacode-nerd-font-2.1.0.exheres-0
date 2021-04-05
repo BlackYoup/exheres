@@ -1,0 +1,33 @@
+# Copyright 2021 Arnaud Lefebvre <a.lefebvre@outlook.fr>
+# Distributed under the terms of the GNU General Public License v2
+
+require github [ user=ryanoasis project=nerd-fonts pnv=FiraCode release=v${PV} suffix=zip ]
+require xfont
+
+SUMMARY="FiraCode Nerd Font"
+LICENCES="MIT"
+SLOT="0"
+PLATFORMS="~amd64"
+MYOPTIONS=""
+
+WORK=${WORKBASE}/${PNV}
+FONT=${PN}
+
+src_unpack() {
+    mkdir ${WORKBASE}/${PNV}
+    pushd ${PNV}
+    default
+}
+
+src_prepare() {
+    default
+
+    edo find ${WORK} -type f -name '*Windows*' -delete
+}
+
+src_install() {
+    insinto /usr/share/fonts/X11/${PN}
+    doins *.ttf
+
+    fix_fonts
+}
