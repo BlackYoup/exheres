@@ -1,0 +1,33 @@
+# Copyright 2021 Arnaud Lefebvre <a.lefebvre@outlook.fr>
+# Distributed under the terms of the GNU General Public License v2
+
+require pypi setup-py [ import=setuptools blacklist=2 has_bin=true ]
+
+SUMMARY="Command-line YAML/XML/TOML processor"
+LICENCES="Apache-2.0"
+SLOT="0"
+PLATFORMS="~amd64"
+MYOPTIONS=""
+
+# TODO: skipped for fast install
+RESTRICT="test"
+
+DEPENDENCIES="
+    build+run:
+        dev-python/argcomplete[>=1.8.1][python_abis:*(-)?]
+        dev-python/PyYAML[>=3.11][python_abis:*(-)?]
+        dev-python/toml[>=0.10.0][python_abis:*(-)?]
+        dev-python/xmltodict[>=0.11.0][python_abis:*(-)?]
+    test:
+        dev-python/coverage[python_abis:*(-)?]
+        dev-python/flake8[python_abis:*(-)?]
+        dev-python/wheel[python_abis:*(-)?]
+"
+
+install_one_multibuild(){
+    setup-py_install_one_multibuild
+
+    alternatives_for \
+        ${PN}_python ${MULTIBUILD_TARGET} ${MULTIBUILD_TARGET} \
+        /usr/$(exhost --target)/bin/${PN} ${PN}${MULTIBUILD_TARGET}
+}
