@@ -1,0 +1,37 @@
+# Copyright 2021 Arnaud Lefebvre <a.lefebvre@outlook.fr>
+# Distributed under the terms of the GNU General Public License v2
+
+require pypi setup-py [ import=setuptools blacklist=2 test=pytest has_bin=true ]
+
+SUMMARY="Pull tickets from github, bitbucket, bugzilla, jira, trac, and others into taskwarrior"
+DESCRIPTION="
+bugwarrior is a command line utility for updating your local taskwarrior database from your forge issue trackers.
+"
+
+SLOT="0"
+PLATFORMS="~amd64"
+LICENCES="GPL-3"
+
+DEPENDENCIES="
+    build+run:
+        dev-python/click[python_abis:*(-)?]
+        dev-python/dogpile-cache[>=0.5.3][python_abis:*(-)?]
+        dev-python/future[python_abis:*(-)?]
+        dev-python/Jinja2[>=2.7.2][python_abis:*(-)?]
+        dev-python/lockfile[>=0.9.1][python_abis:*(-)?]
+        dev-python/python-dateutil[python_abis:*(-)?]
+        dev-python/pytz[python_abis:*(-)?]
+        dev-python/requests[python_abis:*(-)?]
+        dev-python/six[>=1.9.0][python_abis:*(-)?]
+        dev-python/taskw[>=0.8.0][python_abis:*(-)?]
+
+    test:
+        dev-python/responses[python_abis:*(-)?]
+"
+
+# TODO: bugwarrior requires a lot of other dependencies for some
+# services I don't need. Ence the tests for those services are failing
+# In those dependencies there is pypandoc which requires pandoc
+# and I'm in no mood *AT ALL* to install pandoc on my machine. Ever.
+RESTRICT="test"
+
