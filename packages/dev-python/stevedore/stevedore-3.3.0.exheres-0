@@ -1,0 +1,27 @@
+# Copyright 2018 Arnaud Lefebvre <a.lefebvre@outlook.fr>
+# Distributed under the terms of the GNU General Public License v2
+
+require pypi setup-py [ import=setuptools blacklist=2 ]
+
+SUMMARY="Manage dynamic plugins for Python applications"
+
+LICENCES="Apache-2.0"
+SLOT="0"
+PLATFORMS="~amd64"
+MYOPTIONS=""
+
+DEPENDENCIES="
+    build+run:
+        dev-python/pbr[>=2.1.0][python_abis:*(-)?]
+        python_abis:3.7? ( dev-python/importlib_metadata[>=1.7.0][python_abis:*(-)?] )
+        python_abis:3.6? ( dev-python/importlib_metadata[>=1.7.0][python_abis:*(-)?] )
+    test:
+        dev-python/coverage[>=4.4][python_abis:*(-)?]
+        dev-python/stestr[>=2.0.0][python_abis:*(-)?]
+        dev-python/Sphinx[>=2.1.0][python_abis:*(-)?]
+        dev-python/bandit[>=1.6.0&<1.7.0][python_abis:*(-)?]
+        dev-python/pre-commit[>=2.6.0][python_abis:*(-)?]
+"
+
+# TODO: some dependencies are not packaged
+RESTRICT="test"
