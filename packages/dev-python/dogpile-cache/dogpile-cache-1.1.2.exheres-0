@@ -1,0 +1,26 @@
+# Copyright 2021 Arnaud Lefebvre <a.lefebvre@outlook.fr>
+# Distributed under the terms of the GNU General Public License v2
+
+MY_PN="${PN/-/.}"
+MY_PNV="${PNV/-/.}"
+
+require pypi [ pn="${MY_PN}" pnv="${MY_PNV}" ] setup-py [ import=setuptools blacklist=2 work="${MY_PNV}" ]
+
+SUMMARY="A caching front-end based on the Dogpile lock"
+LICENCES="MIT"
+PLATFORMS="~amd64"
+SLOT="0"
+MYOPTIONS=""
+
+DEPENDENCIES="
+    build+run:
+        dev-python/decorator[>=4.0.0][python_abis:*(-)?]
+        dev-python/Mako[python_abis:*(-)?]
+        dev-python/mock[python_abis:*(-)?]
+        dev-python/stevedore[python_abis:*(-)?]
+    test:
+        dev-python/pytest[>=5.4.0][python_abis:*(-)?]
+"
+
+# TODO: check if pytest is available with this constraint
+RESTRICT="test"
