@@ -1,0 +1,30 @@
+# Copyright 2021 Arnaud Lefebvre <a.lefebvre@outlook.fr>
+# Distributed under the terms of the GNU General Public License v2
+
+require github [ user=tonsky pnv=Fira_Code_v${PV} release=${PV} suffix=zip ]
+require xfont
+
+SUMMARY="FiraCode Font"
+DESCRIPTION="
+Free monospaced font with programming ligatures
+"
+LICENCES="MIT"
+SLOT="0"
+PLATFORMS="~amd64"
+MYOPTIONS=""
+
+WORK=${WORKBASE}/${PNV}
+FONT=${PN}
+
+src_unpack() {
+    mkdir -p "${WORK}"
+    pushd ${PNV}
+    default
+}
+
+src_install() {
+    insinto /usr/share/fonts/X11/${PN}
+    doins "${WORK}"/ttf/*.ttf
+
+    fix_fonts
+}
