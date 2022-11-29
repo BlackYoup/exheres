@@ -1,0 +1,23 @@
+# Copyright 2022 Arnaud Lefebvre <arnaud.lefebvre@clever-cloud.com>
+# Distributed under the terms of the GNU General Public License v2
+
+require github [ user=CESNET tag=v${PV} ] cmake
+
+SUMMARY="YANG data modeling language library"
+DESCRIPTION="
+libyang is a YANG data modelling language parser and toolkit written (and providing API) in C.
+The library is used e.g. in libnetconf2, Netopeer2 or sysrepo projects.
+"
+
+LICENCES="BSD-3"
+SLOT="0"
+PLATFORMS="~amd64"
+
+DEPENDENCIES="
+    build+run:
+        dev-libs/pcre2
+"
+
+CMAKE_SRC_CONFIGURE_PARAMS=(
+    -DYANG_MODULE_DIR:STRING=/usr/share/yang/modules/"${PN}"
+)
