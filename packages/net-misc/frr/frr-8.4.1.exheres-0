@@ -1,0 +1,56 @@
+# Copyright 2022 Arnaud Lefebvre <arnaud.lefebvre@clever-cloud.com>
+# Distributed under the terms of the GNU General Public License v2
+
+require autotools [ supported_autoconf=[ 2.7 ] supported_automake=[ 1.16 ] ]
+require github [ user=FRRouting tag="${PNV}" ] python [ blacklist=2 multibuild=false ]
+require systemd-service [ systemd_files=[ tools/${PN}.service ] ]
+
+SUMMARY="The FRRouting Protocol Suite"
+DESCRIPTION="
+FRR is free software that implements and manages various IPv4 and IPv6 routing protocols.
+It runs on nearly all distributions of Linux and BSD and supports all modern CPU architectures.
+"
+
+LICENCES="GPL-2 LGPL-2.1"
+SLOT=0
+PLATFORMS="~amd64"
+
+MYOPTIONS="
+    nhrpd [[ description = [ Build with NHRP protocol ] ]]
+"
+
+DEPENDENCIES="
+    build+run:
+        dev-db/sqlite
+        dev-libs/json-c:=
+        dev-libs/openssl:=
+        dev-libs/libyang
+        sys-libs/libcap
+        sys-libs/readline:=
+        user/${PN}
+        nhrpd? ( net-dns/c-ares )
+    test:
+        dev-python/pytest[python_abis:*(-)?]
+"
+
+DEFAULT_SRC_CONFIGURE_OPTION_ENABLES=(
+    nhrpd
+)
+
+DEFAULT_SRC_CONFIGURE_PARAMS=(
+    --enable-config-rollbacks
+    --with-crypto=openssl
+    --disable-doc
+    --sysconfdir=/etc/${PN}
+    --localstatedir=/run/${PN}
+)
+
+src_install() {
+    default
+
+    keepdir /etc/${PN}
+    insinto /etc/${PN}
+    doins tools/etc/${PN}/{daemons,frr.conf,vtysh.conf}
+
+    install_systemd_files
+}
