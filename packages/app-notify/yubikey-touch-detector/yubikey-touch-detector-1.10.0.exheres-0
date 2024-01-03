@@ -1,0 +1,47 @@
+# Copyright 2024 Arnaud Lefebvre <a.lefebvre@outlook.fr>
+# Distributed under the terms of the GNU General Public License v2
+
+require systemd-service [ systemd_files=[ ] systemd_user_files=[ "${WORK}"/${PN}.{service,socket} ] ]
+require github [ user=maximbaz tag=${PV} ]
+
+SUMMARY="Send notification when your Yubikey is waiting for a touch"
+DESCRIPTION="
+A tool to detect when your YubiKey is waiting for a touch (to send notification
+or display a visual indicator on the screen)
+"
+
+LICENCES="ISC"
+SLOT="0"
+PLATFORMS="~amd64"
+
+DEPENDENCIES="
+    build+run:
+        dev-lang/go
+"
+
+unset GOPATH
+
+src_unpack() {
+    default
+
+    export GOMODCACHE="${FETCHEDDIR}/go/pkg/mod"
+
+    esandbox disable_net
+
+    edo pushd "${WORK}"
+    edo go mod download -x
+    edo popd
+
+    esandbox enable_net
+}
+
+src_compile() {
+    edo go build -v -o ${PN}
+}
+
+src_install() {
+    dobin ${PN}
+    insinto /usr/share/icons/hicolor/128x128/apps/
+    doins ${FILES}/${PN}.png
+    install_systemd_files
+}
