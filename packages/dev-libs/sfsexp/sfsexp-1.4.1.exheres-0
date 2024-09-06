@@ -1,0 +1,10 @@
+# Copyright 2024 Arnaud Lefebvre <arnaud.lefebvre@clever-cloud.com>
+# Distributed under the terms of the GNU General Public License v2
+
+require autotools [ supported_autoconf=[ 2.7 ] supported_automake=[ 1.16 ] ]
+require github [ user=mjsottile tag=v"${PV}" ]
+
+SUMMARY="Small Fast S-Expression Library "
+
+SLOT=0
+PLATFORMS="~amd64"
