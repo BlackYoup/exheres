@@ -19,10 +19,12 @@ SLOT="0"
 MYOPTIONS="
     debug [[ description = [ Add debugging support and -d switch ] ]]
     gpgme [[ description = [ Enable support for gpgme ] ]]
+    gss [[ description = [ Use GSSAPI for IMAP authentication ] ]]
     (
         idn
         idn2
     ) [[ number-selected = at-most-one ]]
+    lua [[ description = [ Add LUA runtime to access neomutt API through LUA ] ]]
     notmuch [[ description = [ Add support of notmuch backend ] ]]
     sasl
     smime
@@ -46,12 +48,14 @@ DEPENDENCIES="
     build+run:
         gdbm? ( sys-libs/gdbm )
         gpgme? ( app-crypt/gpgme )
+        gss? ( app-crypt/krb5 )
         idn? ( net-dns/libidn )
         idn2? ( net-dns/libidn2:= )
+        lua? ( dev-lang/lua:= )
         ncurses? ( sys-libs/ncurses )
         notmuch? ( mail-client/notmuch )
         providers:libressl? ( dev-libs/libressl:= )
-        providers:openssl? ( dev-libs/openssl )
+        providers:openssl? ( dev-libs/openssl:= )
         sasl? ( net-libs/cyrus-sasl )
         slang? ( sys-libs/slang )
         tokyocabinet? ( dev-db/tokyocabinet )
@@ -78,8 +82,10 @@ DEFAULT_SRC_CONFIGURE_OPTIONS=(
         'debug --debug'
         'gdbm --gdbm'
         'gpgme --gpgme'
+        'gss --gss'
         '!idn --disable-idn'
         'idn2 --idn2'
+        'lua --lua'
         'ncurses --with-ui=ncurses'
         'notmuch --notmuch'
         'sasl --sasl'
