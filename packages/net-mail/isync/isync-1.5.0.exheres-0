@@ -12,9 +12,12 @@ MYOPTIONS="providers: libressl openssl [[ number-selected = exactly-one ]]"
 
 DEPENDENCIES="
     build:
-        dev-util/pkg-config
+        dev-lang/perl:=
+        virtual/pkg-config
     build+run:
+        net-libs/cyrus-sasl
         sys-libs/db:=[>=4.2]
+        sys-libs/zlib
         providers:libressl? ( dev-libs/libressl:= )
         providers:openssl? ( dev-libs/openssl )
 "
